@@ -41,6 +41,13 @@
   <url>http://www.silverpeas.org/docs/components</url>
   <description>The different applications that are deployed in standard in Silverpeas</description>
 
+  <properties>
+    <!-- pre release information for auto deployment. Prefix for build version numbers that will
+    replace the SNAPSHOT value of the project version -->
+    <pre.release>6.0</pre.release>
+    <core.version>${project.version}</core.version>
+  </properties>
+
   <scm>
     <connection>scm:git:git@github.com:Silverpeas/Silverpeas-Components.git</connection>
     <developerConnection>scm:git:git@github.com:Silverpeas/Silverpeas-Components.git</developerConnection>
@@ -62,10 +69,6 @@
       </snapshots>
     </repository>
   </repositories>
-
-  <properties>
-    <core.version>${project.version}</core.version>
-  </properties>
 
   <dependencies>
     <dependency>
@@ -127,6 +130,15 @@
             </goals>
           </execution>
         </executions>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Build-Version>${project.version}</Build-Version>
+              <Git-Commit>${git.commit.id.abbrev}</Git-Commit>
+              <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+            </manifestEntries>
+          </archive>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -142,6 +154,50 @@
         <configuration>
           <relativizeDecorationLinks>false</relativizeDecorationLinks>
           <generateSitemap>true</generateSitemap>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Build-Version>${project.version}</Build-Version>
+              <Git-Commit>${git.commit.id.abbrev}</Git-Commit>
+              <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <archive>
+            <manifestEntries>
+              <Build-Version>${project.version}</Build-Version>
+              <Logging-Profile>silverpeas</Logging-Profile>
+              <Git-Commit>${git.commit.id.abbrev}</Git-Commit>
+              <Build-Timestamp>${maven.build.timestamp}</Build-Timestamp>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>pl.project13.maven</groupId>
+        <artifactId>git-commit-id-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>validate</phase>
+            <goals>
+              <goal>revision</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <dotGitDirectory>${project.basedir}/.git</dotGitDirectory>
+          <dateFormat>yyyy-MM-dd'T'HH:mm:ssZ</dateFormat>
+          <generateGitPropertiesFile>false</generateGitPropertiesFile>
         </configuration>
       </plugin>
     </plugins>
