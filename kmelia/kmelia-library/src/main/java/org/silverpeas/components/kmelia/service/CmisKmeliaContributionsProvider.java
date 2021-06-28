@@ -24,6 +24,7 @@
 
 package org.silverpeas.components.kmelia.service;
 
+import org.apache.chemistry.opencmis.commons.exceptions.CmisNotSupportedException;
 import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
 import org.silverpeas.components.kmelia.KmeliaPublicationHelper;
 import org.silverpeas.components.kmelia.model.KmeliaPublication;
@@ -36,6 +37,8 @@ import org.silverpeas.core.annotation.Service;
 import org.silverpeas.core.cmis.CmisContributionsProvider;
 import org.silverpeas.core.contribution.model.ContributionIdentifier;
 import org.silverpeas.core.contribution.model.I18nContribution;
+import org.silverpeas.core.contribution.publication.model.PublicationDetail;
+import org.silverpeas.core.contribution.publication.model.PublicationPK;
 import org.silverpeas.core.node.model.NodeDetail;
 import org.silverpeas.core.node.model.NodePK;
 
@@ -120,8 +123,42 @@ public class CmisKmeliaContributionsProvider implements CmisContributionsProvide
     }
   }
 
+  @Override
+  public I18nContribution createContributionsInFolder(final I18nContribution contribution,
+      final ContributionIdentifier folder) {
+    if (contribution.getIdentifier().getType().equals(PublicationDetail.TYPE)) {
+      PublicationDetail publication = toPublicationDetail(contribution);
+      String id = kmeliaService.createPublicationIntoTopic(publication, toNodePK(folder));
+      PublicationDetail saved = publication.copy();
+      saved.setPk(new PublicationPK(id, publication.getInstanceId()));
+      return publication;
+    }
+    throw new CmisNotSupportedException("CMIS creation of " + contribution.getContributionType() +
+        " isn't yet supported in Kmelia");
+  }
+
   private NodePK toNodePK(final ContributionIdentifier identifier) {
     return new NodePK(identifier.getLocalId(), identifier.getComponentInstanceId());
+  }
+
+  private PublicationDetail toPublicationDetail(final I18nContribution contribution) {
+    PublicationDetail publication;
+    if (contribution instanceof PublicationDetail) {
+      publication = (PublicationDetail) contribution;
+    } else {
+      PublicationPK pk = new PublicationPK(contribution.getIdentifier().getLocalId(),
+          contribution.getIdentifier().getComponentInstanceId());
+      publication = new PublicationDetail();
+      publication.setPk(pk);
+      publication.setName(contribution.getName());
+      publication.setDescription(contribution.getDescription());
+      publication.setCreatorId(contribution.getCreator().getId());
+      publication.setUpdaterId(publication.getCreatorId());
+      publication.setCreationDate(contribution.getCreationDate());
+      publication.setUpdateDate(contribution.getLastUpdateDate());
+      publication.setImportance(1);
+    }
+    return publication;
   }
 }
   
