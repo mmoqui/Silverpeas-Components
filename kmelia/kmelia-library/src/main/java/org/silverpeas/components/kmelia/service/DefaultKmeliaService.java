@@ -3455,11 +3455,17 @@ public class DefaultKmeliaService implements KmeliaService {
       String description, byte[] contents) {
     try {
       Date creationDate = new Date();
-      SimpleAttachment file =
-          new SimpleAttachment(FileUtil.getFilename(filename), I18NHelper.DEFAULT_LANGUAGE, filename,
-              "", contents.length, FileUtil.getMimeType(filename), userId, creationDate, null);
-      boolean versioningActive = getBooleanValue(getOrganisationController().
-          getComponentParameterValue(pubPK.getComponentName(), VERSION_MODE));
+      SimpleAttachment file = SimpleAttachment.builder(I18NHelper.DEFAULT_LANGUAGE)
+          .setFilename(FileUtil.getFilename(filename))
+          .setTitle(filename)
+          .setDescription("")
+          .setSize(contents.length)
+          .setContentType(FileUtil.getMimeType(filename))
+          .setCreationData(userId, creationDate)
+          .build();
+      boolean versioningActive = getBooleanValue(
+          getOrganisationController().getComponentParameterValue(pubPK.getComponentName(),
+              VERSION_MODE));
       SimpleDocument document;
       if (versioningActive) {
         document = new HistorisedDocument(new SimpleDocumentPK(null, pubPK.getComponentName()),
