@@ -74,7 +74,7 @@ final def insertExternalUrl = '''
   INSERT INTO SB_Cal_Attributes
     (id,
     name,
-    value)
+    "value")
   VALUES
     (:id, 'externalUrl', :value)
 '''
