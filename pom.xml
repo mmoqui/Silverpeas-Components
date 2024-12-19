@@ -330,6 +330,7 @@
     <module>suggestionBox</module>
     <module>spaceMembers</module>
     <module>community</module>
+    <module>datefinder</module>
   </modules>
 
 </project>
